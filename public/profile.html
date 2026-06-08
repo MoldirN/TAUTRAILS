@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Профиль — TAUTRAILS</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/main.css">
+</head>
+<body>
+
+<nav class="navbar" id="navbar">
+  <ul class="navbar__links navbar__links--left">
+    <li><a href="/">Главная</a></li>
+    <li><a href="/#trails">Маршруты</a></li>
+    <li><a href="/#about">О проекте</a></li>
+  </ul>
+  <a href="/" class="navbar__logo">
+    <img src="/assets/logo.png" alt="TauTrails">
+  </a>
+  <ul class="navbar__links navbar__links--right">
+    <li id="navAuthLinks"><a href="/login" class="navbar__login-btn">Войти</a></li>
+    <li id="navRegisterLink"><a href="/register" class="navbar__register-btn">Регистрация</a></li>
+    <li id="navUserMenu" style="display:none;">
+      <a href="/profile" class="navbar__profile-btn" id="navUsername"></a>
+      <button class="navbar__logout-btn" id="navLogout">Выйти</button>
+    </li>
+    <li id="navAdminLink" style="display:none;">
+      <a href="/admin" class="navbar__admin-btn">Панель</a>
+    </li>
+  </ul>
+  <button class="navbar__burger" id="burger" aria-label="Меню">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+
+<div class="navbar__mobile-menu" id="mobileMenu">
+  <a href="/">Главная</a>
+  <a href="/#trails">Маршруты</a>
+  <a href="/#about">О проекте</a>
+  <div class="navbar__mobile-divider"></div>
+  <div id="mobileUserSection" style="display:none;">
+    <a href="/profile" id="mobileUsername" class="navbar__mobile-username"></a>
+    <button class="navbar__mobile-logout" id="mobileLogout">Выйти</button>
+  </div>
+</div>
+
+<div class="profile-page">
+  <div class="profile-bg"></div>
+  <div class="container" style="position:relative;z-index:1;padding-top:100px;padding-bottom:60px;">
+
+    <div class="profile-header">
+      <div class="profile-avatar" id="profileAvatar"></div>
+      <div class="profile-info">
+        <h1 class="profile-name" id="profileName"></h1>
+        <p class="profile-email" id="profileEmail"></p>
+        <p class="profile-joined" id="profileJoined"></p>
+        <span class="profile-role" id="profileRole"></span>
+      </div>
+    </div>
+
+    <div class="profile-stats">
+      <div class="profile-stat">
+        <strong id="profileReviewCount">0</strong>
+        <span>Отзывов</span>
+      </div>
+      <div class="profile-stat">
+        <strong id="profileAvgRating">—</strong>
+        <span>Средняя оценка</span>
+      </div>
+    </div>
+
+    <div class="profile-section">
+      <h2 class="profile-section__title">МОИ ОТЗЫВЫ</h2>
+      <div id="profileReviews">
+        <div class="loading"><div class="loading__spinner"></div></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<footer class="footer">
+  <div class="footer__bottom">
+    <div class="container">
+      <div class="footer__bottom-inner">
+        <p>© 2024 TauTrails · Алматы, Казахстан</p>
+        <p class="footer__bottom-right">Сделано с ❤️ для гор</p>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script>
+function starsHtml(n) {
+  n = Math.round(n);
+  return '★'.repeat(n) + '☆'.repeat(5-n);
+}
+function formatDate(str) {
+  return new Date(str).toLocaleDateString('ru-RU', { day:'numeric', month:'long', year:'numeric' });
+}
+
+const navbar = document.getElementById('navbar');
+const burger = document.getElementById('burger');
+const mobileMenu = document.getElementById('mobileMenu');
+window.addEventListener('scroll', () => navbar.classList.toggle('scrolled', window.scrollY > 50));
+burger?.addEventListener('click', () => { burger.classList.toggle('open'); mobileMenu?.classList.toggle('open'); });
+
+async function init() {
+  const res = await fetch('/api/auth/me');
+  if (!res.ok) { window.location.href = '/login?redirect=/profile'; return; }
+  const user = await res.json();
+
+  // Навбар
+  document.getElementById('navAuthLinks').style.display = 'none';
+  document.getElementById('navRegisterLink').style.display = 'none';
+  document.getElementById('navUserMenu').style.display = 'flex';
+  document.getElementById('navUsername').textContent = '👤 ' + user.username;
+  const mobileUserSec = document.getElementById('mobileUserSection');
+  const mobileUser = document.getElementById('mobileUsername');
+  if (mobileUserSec) mobileUserSec.style.display = 'flex';
+  if (mobileUser) mobileUser.textContent = '👤 ' + user.username;
+  if (user.role === 'admin') document.getElementById('navAdminLink').style.display = 'block';
+
+  document.getElementById('navLogout')?.addEventListener('click', async () => {
+    await fetch('/api/auth/logout', { method: 'POST' });
+    window.location.href = '/';
+  });
+  document.getElementById('mobileLogout')?.addEventListener('click', async () => {
+    await fetch('/api/auth/logout', { method: 'POST' });
+    window.location.href = '/';
+  });
+
+  // Профиль
+  document.getElementById('profileAvatar').textContent = user.username.charAt(0).toUpperCase();
+  document.getElementById('profileName').textContent = user.username;
+  document.getElementById('profileEmail').textContent = user.email || 'Email не указан';
+  document.getElementById('profileJoined').textContent = 'Зарегистрирован: ' + formatDate(user.created_at);
+  const roleEl = document.getElementById('profileRole');
+  roleEl.textContent = user.role === 'admin' ? '👑 Администратор' : '👤 Пользователь';
+  roleEl.className = 'profile-role' + (user.role === 'admin' ? ' profile-role--admin' : '');
+
+  // Отзывы
+  try {
+    const rRes = await fetch('/api/auth/my-reviews');
+    if (rRes.ok) {
+      const reviews = await rRes.json();
+      document.getElementById('profileReviewCount').textContent = reviews.length;
+      if (reviews.length) {
+        const avg = (reviews.reduce((s, r) => s + r.rating, 0) / reviews.length).toFixed(1);
+        document.getElementById('profileAvgRating').textContent = avg + ' ★';
+      }
+      const el = document.getElementById('profileReviews');
+      if (!reviews.length) {
+        el.innerHTML = '<p style="color:var(--color-text-muted);font-size:14px;padding:20px 0;">Вы ещё не оставляли отзывов. <a href="/#trails" style="color:var(--color-green);">Найдите маршрут!</a></p>';
+        return;
+      }
+      el.innerHTML = reviews.map(r => `
+        <div class="profile-review-item">
+          <div class="profile-review-trail">
+            <a href="/trail/${r.trail_id}" style="color:var(--color-green);font-weight:600;">${r.trail_name || 'Маршрут'}</a>
+            <span class="profile-review-date">${formatDate(r.created_at)}</span>
+          </div>
+          <div class="profile-review-stars">${starsHtml(r.rating)}</div>
+          ${r.sticker ? `<span style="font-size:20px;">${r.sticker}</span>` : ''}
+          ${r.comment ? `<p class="profile-review-text">${r.comment}</p>` : ''}
+        </div>
+      `).join('');
+    }
+  } catch {}
+}
+
+init();
+</script>
+</body>
+</html>

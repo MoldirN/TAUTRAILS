@@ -1,0 +1,22 @@
+{
+  "name": "tautrails",
+  "version": "1.0.0",
+  "description": "Платформа горных маршрутов Алматы",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js",
+    "build-css": "sass public/scss/main.scss public/css/main.css"
+  },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "express": "^4.19.2",
+    "express-session": "^1.18.1",
+    "multer": "^2.0.0",
+    "sql.js": "^1.11.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.0",
+    "sass": "^1.72.0"
+  }
+}

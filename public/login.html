@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Вход — TAUTRAILS</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/main.css">
+</head>
+<body class="auth-body">
+
+<div class="auth-page">
+  <div class="auth-bg"></div>
+  <div class="auth-card">
+    <a href="/" class="auth-logo">
+      <img src="/assets/logo.png" alt="TauTrails">
+    </a>
+    <h2 class="auth-title">Добро пожаловать</h2>
+    <p class="auth-subtitle">Войдите, чтобы оставлять отзывы и следить за маршрутами</p>
+
+    <div id="authAlert" class="alert"></div>
+
+    <div class="form-group">
+      <label>Логин или Email</label>
+      <input type="text" id="loginUsername" placeholder="Ваш логин" autocomplete="username">
+    </div>
+    <div class="form-group">
+      <label>Пароль</label>
+      <input type="password" id="loginPassword" placeholder="••••••••" autocomplete="current-password">
+    </div>
+
+    <button class="btn btn--primary btn--full" id="loginBtn">Войти</button>
+
+    <div class="auth-divider"><span>или</span></div>
+
+    <a href="/register" class="btn btn--secondary btn--full">Создать аккаунт</a>
+
+    <p class="auth-back"><a href="/">← Вернуться на главную</a></p>
+  </div>
+</div>
+
+<script>
+  fetch('/api/auth/me').then(r => { if (r.ok) window.location.href = '/'; });
+
+  async function doLogin() {
+    const username = document.getElementById('loginUsername').value.trim();
+    const password = document.getElementById('loginPassword').value;
+    const alertEl = document.getElementById('authAlert');
+
+    if (!username || !password) {
+      alertEl.className = 'alert alert--error show';
+      alertEl.textContent = 'Заполните все поля';
+      return;
+    }
+
+    const btn = document.getElementById('loginBtn');
+    btn.disabled = true;
+    btn.textContent = 'Вход...';
+
+    try {
+      const res = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password })
+      });
+      const data = await res.json();
+
+      if (res.ok) {
+        const redirect = new URLSearchParams(location.search).get('redirect') || '/';
+        window.location.href = data.role === 'admin' ? '/admin' : redirect;
+      } else {
+        alertEl.className = 'alert alert--error show';
+        alertEl.textContent = data.error || 'Ошибка входа';
+      }
+    } catch {
+      alertEl.className = 'alert alert--error show';
+      alertEl.textContent = 'Ошибка соединения';
+    }
+
+    btn.disabled = false;
+    btn.textContent = 'Войти';
+  }
+
+  document.getElementById('loginBtn').addEventListener('click', doLogin);
+  document.getElementById('loginPassword').addEventListener('keydown', e => {
+    if (e.key === 'Enter') doLogin();
+  });
+</script>
+</body>
+</html>

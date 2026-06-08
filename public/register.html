@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Регистрация — TAUTRAILS</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/main.css">
+</head>
+<body class="auth-body">
+
+<div class="auth-page">
+  <div class="auth-bg"></div>
+  <div class="auth-card">
+    <a href="/" class="auth-logo">
+      <img src="/assets/logo.png" alt="TauTrails">
+    </a>
+    <h2 class="auth-title">Создать аккаунт</h2>
+    <p class="auth-subtitle">Присоединяйтесь к сообществу любителей гор</p>
+
+    <div id="authAlert" class="alert"></div>
+
+    <div class="form-group">
+      <label>Имя пользователя *</label>
+      <input type="text" id="regUsername" placeholder="mountainhiker" autocomplete="username">
+    </div>
+    <div class="form-group">
+      <label>Email</label>
+      <input type="email" id="regEmail" placeholder="you@example.com" autocomplete="email">
+    </div>
+    <div class="form-group">
+      <label>Пароль *</label>
+      <input type="password" id="regPassword" placeholder="Минимум 6 символов" autocomplete="new-password">
+    </div>
+    <div class="form-group">
+      <label>Подтвердите пароль *</label>
+      <input type="password" id="regConfirm" placeholder="••••••••" autocomplete="new-password">
+    </div>
+
+    <button class="btn btn--primary btn--full" id="registerBtn">Зарегистрироваться</button>
+
+    <div class="auth-divider"><span>уже есть аккаунт?</span></div>
+
+    <a href="/login" class="btn btn--secondary btn--full">Войти</a>
+
+    <p class="auth-back"><a href="/">← Вернуться на главную</a></p>
+  </div>
+</div>
+
+<script>
+  fetch('/api/auth/me').then(r => { if (r.ok) window.location.href = '/'; });
+
+  async function doRegister() {
+    const username = document.getElementById('regUsername').value.trim();
+    const email = document.getElementById('regEmail').value.trim();
+    const password = document.getElementById('regPassword').value;
+    const confirmPassword = document.getElementById('regConfirm').value;
+    const alertEl = document.getElementById('authAlert');
+
+    if (!username || !password || !confirmPassword) {
+      alertEl.className = 'alert alert--error show';
+      alertEl.textContent = 'Заполните обязательные поля';
+      return;
+    }
+
+    const btn = document.getElementById('registerBtn');
+    btn.disabled = true;
+    btn.textContent = 'Регистрация...';
+
+    try {
+      const res = await fetch('/api/auth/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, email, password, confirmPassword })
+      });
+      const data = await res.json();
+
+      if (res.ok) {
+        window.location.href = '/';
+      } else {
+        alertEl.className = 'alert alert--error show';
+        alertEl.textContent = data.error || 'Ошибка регистрации';
+      }
+    } catch {
+      alertEl.className = 'alert alert--error show';
+      alertEl.textContent = 'Ошибка соединения';
+    }
+
+    btn.disabled = false;
+    btn.textContent = 'Зарегистрироваться';
+  }
+
+  document.getElementById('registerBtn').addEventListener('click', doRegister);
+  document.getElementById('regConfirm').addEventListener('keydown', e => {
+    if (e.key === 'Enter') doRegister();
+  });
+</script>
+</body>
+</html>
