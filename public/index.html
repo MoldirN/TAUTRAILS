@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TAUTRAILS — Горные маршруты Алматы</title>
+  <meta name="description" content="Исследуйте лучшие горные маршруты вокруг Алматы.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/main.css">
+</head>
+<body>
+
+<nav class="navbar" id="navbar">
+  <ul class="navbar__links navbar__links--left" id="navLinksLeft">
+    <li><a href="/" class="active">Главная</a></li>
+    <li><a href="#trails">Маршруты</a></li>
+    <li><a href="#about">О проекте</a></li>
+  </ul>
+
+  <a href="/" class="navbar__logo">
+    <img src="/assets/logo.png" alt="TauTrails">
+  </a>
+
+  <ul class="navbar__links navbar__links--right" id="navLinksRight">
+    <li id="navAuthLinks">
+      <a href="/login" class="navbar__login-btn">Войти</a>
+    </li>
+    <li id="navRegisterLink">
+      <a href="/register" class="navbar__register-btn">Регистрация</a>
+    </li>
+    <li id="navUserMenu" style="display:none;">
+      <a href="/profile" class="navbar__profile-btn" id="navUsername"></a>
+      <button class="navbar__logout-btn" id="navLogout">Выйти</button>
+    </li>
+    <li id="navAdminLink" style="display:none;">
+      <a href="/admin" class="navbar__admin-btn">Панель</a>
+    </li>
+  </ul>
+
+  <button class="navbar__burger" id="burger" aria-label="Меню">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+
+<div class="navbar__mobile-menu" id="mobileMenu">
+  <a href="/">Главная</a>
+  <a href="#trails">Маршруты</a>
+  <a href="#about">О проекте</a>
+  <div class="navbar__mobile-divider"></div>
+  <a href="/login" class="navbar__mobile-login" id="mobileLoginLink">Войти</a>
+  <a href="/register" class="navbar__mobile-register" id="mobileRegisterLink">Регистрация</a>
+  <div id="mobileUserSection" style="display:none;">
+    <a href="/profile" id="mobileUsername" class="navbar__mobile-profile"></a>
+    <button class="navbar__mobile-logout" id="mobileLogout">Выйти</button>
+  </div>
+</div>
+
+<!-- Герой -->
+<section class="hero" id="hero">
+  <div class="hero__bg"></div>
+  <div class="hero__grid-overlay"></div>
+  <div class="hero__mountains">
+    <svg class="hero__mountain hero__mountain--far" viewBox="0 0 1440 500" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
+      <path d="M0,500 L120,280 L200,340 L320,160 L420,240 L520,80 L620,200 L700,100 L800,220 L880,140 L980,260 L1060,180 L1160,300 L1280,200 L1440,280 L1440,500 Z"/>
+    </svg>
+    <svg class="hero__mountain hero__mountain--mid" viewBox="0 0 1440 500" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
+      <path d="M0,500 L80,360 L160,400 L260,260 L360,320 L460,200 L560,280 L640,180 L740,300 L840,220 L940,340 L1040,260 L1140,380 L1240,300 L1440,360 L1440,500 Z"/>
+    </svg>
+    <svg class="hero__mountain hero__mountain--near" viewBox="0 0 1440 500" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
+      <path d="M0,500 L0,420 L100,440 L200,380 L320,420 L440,360 L560,400 L680,340 L800,400 L920,350 L1040,410 L1160,370 L1300,430 L1440,400 L1440,500 Z"/>
+    </svg>
+  </div>
+
+  <div class="hero__content">
+    <div class="hero__eyebrow">
+      <span class="hero__eyebrow-dot"></span>
+      Алматы · Казахстан · Заилийский Алатау
+    </div>
+    <h1 class="hero__title">
+      <span class="hero__title-line--1">TAU</span><span class="hero__title-line--2">TRAILS</span>
+    </h1>
+    <p class="hero__subtitle">
+      Открывайте захватывающие горные маршруты вокруг Алматы.<br>
+      Треки, отзывы, погода и актуальные условия на тропах.
+    </p>
+    <div class="hero__actions">
+      <a href="#trails" class="btn btn--primary hero__btn-main">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M3 12l9-9 9 9M5 10v10h14V10"/></svg>
+        Смотреть маршруты
+      </a>
+      <a href="#about" class="btn btn--secondary">О проекте</a>
+    </div>
+    <div class="hero__stats" id="heroStats">
+      <div class="hero__stat">
+        <strong id="statTrails">—</strong>
+        <span>Маршрутов</span>
+      </div>
+      <div class="hero__stat-divider"></div>
+      <div class="hero__stat">
+        <strong id="statReviews">—</strong>
+        <span>Отзывов</span>
+      </div>
+      <div class="hero__stat-divider"></div>
+      <div class="hero__stat">
+        <strong id="statRating">—</strong>
+        <span>Рейтинг</span>
+      </div>
+    </div>
+    <div class="hero__features">
+      <div class="hero__feature">
+        <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+        GPS-треки
+      </div>
+      <div class="hero__feature">
+        <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+        Реальные отзывы
+      </div>
+      <div class="hero__feature">
+        <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z"/></svg>
+        Условия на тропах
+      </div>
+    </div>
+  </div>
+
+  <div class="hero__scroll-hint">
+    <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 9l-7 7-7-7"/></svg>
+    Прокрутите вниз
+  </div>
+</section>
+
+<!-- Маршруты -->
+<section class="section" id="trails">
+  <div class="container">
+    <div class="section__header">
+      <div>
+        <div class="section__label">Исследуйте</div>
+        <h2 class="section__title">МАРШРУТЫ</h2>
+      </div>
+    </div>
+    <div class="filters">
+      <input type="text" class="filters__search" id="searchInput" placeholder="Поиск маршрута...">
+      <button class="filters__btn active" data-difficulty="">Все</button>
+      <button class="filters__btn" data-difficulty="easy">Лёгкий</button>
+      <button class="filters__btn" data-difficulty="moderate">Средний</button>
+      <button class="filters__btn" data-difficulty="hard">Сложный</button>
+    </div>
+    <div class="trails-grid" id="trailsGrid">
+      <div class="loading"><div class="loading__spinner"></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- О проекте -->
+<section class="section section--about" id="about">
+  <div class="container">
+    <div class="about-grid">
+      <div class="about-text">
+        <div class="section__label">О нас</div>
+        <h2 class="section__title">TAU<span style="color:var(--color-green)">TRAILS</span></h2>
+        <p>
+          TAUTRAILS — платформа для любителей горного туризма в Алматы и окрестностях.
+          Мы собираем лучшие маршруты Заилийского Алатау, предоставляем актуальную информацию
+          об условиях на тропах и помогаем планировать безопасные и незабываемые походы.
+        </p>
+        <p class="about-regions">Тянь-Шань · Заилийский Алатау · Чарын · Джунгарский Алатау</p>
+        <a href="/register" class="btn btn--primary" style="margin-top:24px; display:inline-flex;">Присоединиться</a>
+      </div>
+      <div class="about-cards">
+        <div class="about-card">
+          <div class="about-card__icon">🏔️</div>
+          <div class="about-card__title">Горные маршруты</div>
+          <div class="about-card__text">Детальные описания, фото и GPS-координаты каждого маршрута</div>
+        </div>
+        <div class="about-card">
+          <div class="about-card__icon">⭐</div>
+          <div class="about-card__title">Честные отзывы</div>
+          <div class="about-card__text">Реальные отзывы от туристов с оценками и фотографиями</div>
+        </div>
+        <div class="about-card">
+          <div class="about-card__icon">🌤️</div>
+          <div class="about-card__title">Условия на тропах</div>
+          <div class="about-card__text">Актуальная информация о состоянии дорог и погодных условиях</div>
+        </div>
+        <div class="about-card">
+          <div class="about-card__icon">🗺️</div>
+          <div class="about-card__title">Интерактивные карты</div>
+          <div class="about-card__text">Google Maps с точными маршрутами и точками интереса</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Футер -->
+<footer class="footer">
+  <div class="footer__top">
+    <div class="container">
+      <div class="footer__grid">
+        <div class="footer__brand">
+          <a href="/" class="footer__logo-link">
+            <img src="/assets/logo.png" alt="TauTrails" class="footer__logo-img">
+          </a>
+          <p class="footer__tagline">Горные маршруты Алматы и Казахстана.<br>Исследуй, делись, вдохновляй.</p>
+          <div class="footer__socials">
+            <a href="#" class="footer__social" title="Instagram">
+              <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
+            </a>
+            <a href="#" class="footer__social" title="Telegram">
+              <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg>
+            </a>
+            <a href="#" class="footer__social" title="YouTube">
+              <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+            </a>
+          </div>
+        </div>
+
+        <div class="footer__col">
+          <h4 class="footer__col-title">Маршруты</h4>
+          <ul class="footer__links">
+            <li><a href="#trails">Все маршруты</a></li>
+            <li><a href="#trails">Лёгкие</a></li>
+            <li><a href="#trails">Средние</a></li>
+            <li><a href="#trails">Сложные</a></li>
+          </ul>
+        </div>
+
+        <div class="footer__col">
+          <h4 class="footer__col-title">О проекте</h4>
+          <ul class="footer__links">
+            <li><a href="#about">О нас</a></li>
+            <li><a href="/register">Регистрация</a></li>
+            <li><a href="/login">Войти</a></li>
+          </ul>
+        </div>
+
+        <div class="footer__col">
+          <h4 class="footer__col-title">Регионы</h4>
+          <ul class="footer__links">
+            <li><a href="#trails">Заилийский Алатау</a></li>
+            <li><a href="#trails">Тянь-Шань</a></li>
+            <li><a href="#trails">Чарын</a></li>
+            <li><a href="#trails">Джунгарский Алатау</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="footer__bottom">
+    <div class="container">
+      <div class="footer__bottom-inner">
+        <p>© 2024 TauTrails · Алматы, Казахстан</p>
+        <p class="footer__bottom-right">Все горные маршруты · Сделано с ❤️ для гор</p>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script src="/js/apiClient.js"></script>
+<script src="/js/main.js"></script>
+</body>
+</html>

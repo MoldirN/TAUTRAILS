@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Админ — TAUTRAILS</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/main.css">
+</head>
+<body>
+
+<!-- Логин страница -->
+<div id="loginPage" class="login-page">
+  <div class="login-page__card">
+    <div class="login-page__logo">
+      <img src="/assets/logo.png" alt="TauTrails">
+    </div>
+    <p class="login-page__subtitle">Панель управления</p>
+    <div id="loginAlert" class="alert alert--error"></div>
+    <div class="form-group">
+      <label>Логин</label>
+      <input type="text" id="loginUsername" placeholder="admin">
+    </div>
+    <div class="form-group">
+      <label>Пароль</label>
+      <input type="password" id="loginPassword" placeholder="••••••••">
+    </div>
+    <button class="btn btn--primary" style="width:100%; margin-top:8px;" id="loginBtn">Войти</button>
+    <p style="text-align:center; margin-top:16px;"><a href="/" style="color:#4ade80; font-size:13px;">← На главную</a></p>
+  </div>
+</div>
+
+<!-- Админ панель -->
+<div id="adminPage" class="admin-layout" style="display:none;">
+
+  <!-- Сайдбар -->
+  <aside class="admin-sidebar" id="adminSidebar">
+    <div class="admin-sidebar__logo">
+      <img src="/assets/logo.png" alt="TauTrails">
+    </div>
+    <nav class="admin-sidebar__nav">
+      <button class="admin-sidebar__item active" data-view="dashboard">
+        <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+        Дашборд
+      </button>
+      <button class="admin-sidebar__item" data-view="trails">
+        <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 12l9-9 9 9M5 10v10h14V10"/></svg>
+        Маршруты
+      </button>
+      <button class="admin-sidebar__item" data-view="users">
+        <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        Пользователи
+      </button>
+      <button class="admin-sidebar__item" data-view="reviews">
+        <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        Отзывы
+      </button>
+    </nav>
+    <div class="admin-sidebar__footer">
+      <button class="btn btn--secondary btn--sm" id="logoutBtn" style="width:100%;">Выйти</button>
+    </div>
+  </aside>
+
+  <!-- Основной контент -->
+  <main class="admin-main">
+    <div class="admin-topbar">
+      <h1 class="admin-topbar__title" id="viewTitle">ДАШБОРД</h1>
+      <button class="admin-topbar__burger" id="sidebarToggle">
+        <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 12h18M3 6h18M3 18h18"/></svg>
+      </button>
+    </div>
+
+    <!-- Дашборд -->
+    <div id="viewDashboard">
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-card__icon">🏔️</div>
+          <div class="stat-card__label">Маршрутов</div>
+          <div class="stat-card__value" id="dashTrails">—</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card__icon">💬</div>
+          <div class="stat-card__label">Отзывов</div>
+          <div class="stat-card__value" id="dashReviews">—</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card__icon">👥</div>
+          <div class="stat-card__label">Пользователей</div>
+          <div class="stat-card__value" id="dashUsers">—</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card__icon">⭐</div>
+          <div class="stat-card__label">Средний рейтинг</div>
+          <div class="stat-card__value" id="dashRating">—</div>
+        </div>
+      </div>
+      <p style="color: #556655; font-size: 14px; margin-top: 16px;">
+        Добро пожаловать в панель управления TAUTRAILS.
+      </p>
+    </div>
+
+    <!-- Маршруты -->
+    <div id="viewTrails" style="display:none;">
+      <div style="display:flex; justify-content:flex-end; margin-bottom:20px;">
+        <button class="btn btn--primary" id="addTrailBtn">
+          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
+          Добавить маршрут
+        </button>
+      </div>
+      <div class="admin-table-wrap">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>Фото</th>
+              <th>Название</th>
+              <th>Сложность</th>
+              <th>Длина</th>
+              <th>Рейтинг</th>
+              <th>Действия</th>
+            </tr>
+          </thead>
+          <tbody id="trailsTableBody">
+            <tr><td colspan="6" style="text-align:center; color:#556655;">Загрузка...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Пользователи -->
+    <div id="viewUsers" style="display:none;">
+      <div class="admin-table-wrap">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Имя</th>
+              <th>Email</th>
+              <th>Роль</th>
+              <th>Статус</th>
+              <th>Дата</th>
+              <th>Действия</th>
+            </tr>
+          </thead>
+          <tbody id="usersTableBody">
+            <tr><td colspan="7" style="text-align:center; color:#556655;">Загрузка...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Отзывы -->
+    <div id="viewReviews" style="display:none;">
+      <div class="admin-table-wrap">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>Автор</th>
+              <th>Маршрут</th>
+              <th>Оценка</th>
+              <th>Стикер</th>
+              <th>Комментарий</th>
+              <th>Статус</th>
+              <th>Действия</th>
+            </tr>
+          </thead>
+          <tbody id="reviewsTableBody">
+            <tr><td colspan="7" style="text-align:center; color:#556655;">Загрузка...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- Модальное окно маршрута -->
+<div class="modal-overlay" id="trailModal">
+  <div class="modal">
+    <button class="modal__close" id="modalClose">×</button>
+    <h2 class="modal__title" id="modalTitle">ДОБАВИТЬ МАРШРУТ</h2>
+    <div id="modalAlert" class="alert"></div>
+
+    <!-- Превью существующих фото -->
+    <div id="existingImages" style="display:none;">
+      <label style="color:#8a9e8a; font-size:13px; margin-bottom:8px; display:block;">Текущие фото маршрута</label>
+      <div class="existing-images-grid" id="existingImagesGrid"></div>
+    </div>
+
+    <div class="form-group" style="grid-column: 1 / -1;">
+      <label>Название маршрута *</label>
+      <input type="text" id="fName" placeholder="Например: Пик Нурсултан">
+    </div>
+
+    <div class="form-group">
+      <label>Описание</label>
+      <textarea id="fDesc" placeholder="Опишите маршрут..."></textarea>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label>Сложность</label>
+        <select id="fDifficulty">
+          <option value="easy">Лёгкий</option>
+          <option value="moderate" selected>Средний</option>
+          <option value="hard">Сложный</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Тип маршрута</label>
+        <select id="fType">
+          <option value="out-and-back">Туда-обратно</option>
+          <option value="loop">Петля</option>
+          <option value="point-to-point">Из точки в точку</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label>Длина (км)</label>
+        <input type="number" id="fLength" placeholder="10.5" step="0.1">
+      </div>
+      <div class="form-group">
+        <label>Набор высоты (м)</label>
+        <input type="number" id="fElevation" placeholder="500">
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label>Время (минуты)</label>
+        <input type="number" id="fTime" placeholder="240">
+      </div>
+      <div class="form-group">
+        <label>Район</label>
+        <input type="text" id="fRegion" placeholder="Алматы">
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label>Широта</label>
+        <input type="number" id="fLat" placeholder="43.1127" step="0.0001">
+      </div>
+      <div class="form-group">
+        <label>Долгота</label>
+        <input type="number" id="fLng" placeholder="76.8887" step="0.0001">
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label>Природная поверхность (%)</label>
+        <input type="number" id="fNatural" placeholder="96" min="0" max="100">
+      </div>
+      <div class="form-group">
+        <label>Ступени (%)</label>
+        <input type="number" id="fSteps" placeholder="1" min="0" max="100">
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label>Главное фото</label>
+      <input type="file" id="fCover" accept="image/*" style="color:#8a9e8a;">
+      <div id="coverPreview" style="margin-top:8px;"></div>
+    </div>
+
+    <div class="form-group">
+      <label>Дополнительные фото (до 10)</label>
+      <input type="file" id="fImages" accept="image/*" multiple style="color:#8a9e8a;">
+      <div id="imagesPreview" class="images-preview-grid" style="margin-top:8px;"></div>
+    </div>
+
+    <div style="display:flex; gap:12px; margin-top:24px;">
+      <button class="btn btn--primary" id="saveTrailBtn" style="flex:1;">Сохранить</button>
+      <button class="btn btn--secondary" id="cancelModalBtn">Отмена</button>
+    </div>
+  </div>
+</div>
+
+<script src="/js/apiClient.js"></script>
+<script src="/js/admin.js"></script>
+</body>
+</html>

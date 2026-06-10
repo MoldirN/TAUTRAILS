@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Маршрут — TAUTRAILS</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/main.css">
+</head>
+<body>
+
+<nav class="navbar navbar--solid" id="navbar">
+  <ul class="navbar__links navbar__links--left">
+    <li><a href="/">Главная</a></li>
+    <li><a href="/#trails" class="active">Маршруты</a></li>
+    <li><a href="/#about">О проекте</a></li>
+  </ul>
+  <a href="/" class="navbar__logo">
+    <img src="/assets/logo.png" alt="TauTrails">
+  </a>
+  <ul class="navbar__links navbar__links--right">
+    <li id="navAuthLinks"><a href="/login" class="navbar__login-btn">Войти</a></li>
+    <li id="navRegisterLink"><a href="/register" class="navbar__register-btn">Регистрация</a></li>
+    <li id="navUserMenu" style="display:none;">
+      <a href="/profile" class="navbar__user" id="navUsername"></a>
+      <button class="navbar__logout-btn" id="navLogout">Выйти</button>
+    </li>
+    <li id="navAdminLink" style="display:none;">
+      <a href="/admin" class="navbar__admin-btn">Панель</a>
+    </li>
+  </ul>
+  <button class="navbar__burger" id="burger" aria-label="Меню">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+
+<div class="navbar__mobile-menu" id="mobileMenu">
+  <a href="/">Главная</a>
+  <a href="/#trails">Маршруты</a>
+  <a href="/#about">О проекте</a>
+  <div class="navbar__mobile-divider"></div>
+  <a href="/login" class="navbar__mobile-login" id="mobileLoginLink">Войти</a>
+  <a href="/register" class="navbar__mobile-register" id="mobileRegisterLink">Регистрация</a>
+  <div id="mobileUserSection" style="display:none;">
+    <a href="/profile" id="mobileUsername" class="navbar__mobile-username"></a>
+    <button class="navbar__mobile-logout" id="mobileLogout">Выйти</button>
+  </div>
+</div>
+
+<div class="trail-hero" id="trailHero">
+  <div class="trail-hero__placeholder" id="trailHeroPlaceholder">
+    <svg viewBox="0 0 24 24" fill="white"><path d="M8.5 5.5L3 12l5.5 6.5M15.5 5.5L21 12l-5.5 6.5M10 19l4-14"/></svg>
+  </div>
+  <div class="trail-hero__overlay"></div>
+
+  <div class="trail-hero__info" id="trailHeroInfo">
+    <div class="loading"><div class="loading__spinner"></div></div>
+  </div>
+</div>
+
+<div class="trail-gallery" id="trailGallery" style="display:none;"></div>
+
+<div class="trail-content" id="trailContent" style="display:none;">
+  <div class="trail-stats-bar" id="trailStatsBar"></div>
+  <div class="trail-layout">
+    <div>
+      <div class="trail-description">
+        <h2 class="trail-description__title">О МАРШРУТЕ</h2>
+        <p class="trail-description__text" id="trailDesc"></p>
+      </div>
+      <div class="map-card" id="mapCard" style="display:none;">
+        <h3 class="map-card__title">📍 МЕСТОПОЛОЖЕНИЕ</h3>
+        <div id="trailMap" class="map-card__map"></div>
+        <div class="map-card__coords" id="mapCoords"></div>
+      </div>
+      <div class="surface-card" id="surfaceCard">
+        <h3 class="surface-card__title">ТИП ПОВЕРХНОСТИ</h3>
+        <div class="surface-card__bar" id="surfaceBar"></div>
+        <div id="surfaceItems"></div>
+      </div>
+      <div class="reviews-list" id="reviewsList">
+        <h2 class="reviews-list__title">ОТЗЫВЫ</h2>
+        <div id="reviewsItems"></div>
+      </div>
+    </div>
+
+    <div>
+      <div class="sidebar-card" id="ratingCard">
+        <h3 class="sidebar-card__title">ОЦЕНКИ</h3>
+        <div class="sidebar-card__rating-big" id="ratingBig"></div>
+        <div class="sidebar-card__stars" id="ratingStars"></div>
+        <div class="sidebar-card__count" id="ratingCount"></div>
+      </div>
+
+      <div class="sidebar-card">
+        <h3 class="sidebar-card__title">ОСТАВИТЬ ОТЗЫВ</h3>
+        <div id="reviewAlert" class="alert"></div>
+
+        <!-- Для незарегистрированных -->
+        <div id="reviewGuest">
+          <p style="color:var(--color-text-muted);font-size:14px;margin-bottom:16px;">
+            Чтобы оставить отзыв, войдите в аккаунт.
+          </p>
+          <a id="reviewLoginBtn" href="/login" class="btn btn--primary" style="width:100%;justify-content:center;display:flex;">
+            Войти и оставить отзыв
+          </a>
+        </div>
+
+        <!-- Для авторизованных -->
+        <div class="review-form" id="reviewFormBlock" style="display:none;">
+          <div id="reviewUserBadge" style="display:flex;align-items:center;gap:10px;margin-bottom:16px;padding:10px 14px;background:rgba(74,222,128,0.07);border:1px solid rgba(74,222,128,0.2);border-radius:8px;">
+            <div id="reviewUserAvatar" style="width:32px;height:32px;border-radius:50%;background:var(--color-green);display:flex;align-items:center;justify-content:center;font-weight:700;color:#050d05;font-size:14px;"></div>
+            <span id="reviewUserName" style="color:var(--color-green);font-weight:600;font-size:14px;"></span>
+          </div>
+          <div class="review-form__stars" id="reviewStars">
+            <label data-val="1">★</label>
+            <label data-val="2">★</label>
+            <label data-val="3">★</label>
+            <label data-val="4">★</label>
+            <label data-val="5">★</label>
+          </div>
+          <div class="sticker-picker">
+            <div class="sticker-picker__label">Стикер настроения:</div>
+            <div class="sticker-picker__grid" id="stickerGrid">
+              <button type="button" class="sticker-btn" data-sticker="🔥">🔥</button>
+              <button type="button" class="sticker-btn" data-sticker="❤️">❤️</button>
+              <button type="button" class="sticker-btn" data-sticker="🏔️">🏔️</button>
+              <button type="button" class="sticker-btn" data-sticker="💪">💪</button>
+              <button type="button" class="sticker-btn" data-sticker="😍">😍</button>
+              <button type="button" class="sticker-btn" data-sticker="⚡">⚡</button>
+              <button type="button" class="sticker-btn" data-sticker="🌿">🌿</button>
+              <button type="button" class="sticker-btn" data-sticker="🦅">🦅</button>
+              <button type="button" class="sticker-btn" data-sticker="🌄">🌄</button>
+              <button type="button" class="sticker-btn" data-sticker="🥾">🥾</button>
+            </div>
+          </div>
+          <textarea class="review-form__textarea" id="reviewText" placeholder="Расскажите о вашем опыте..."></textarea>
+          <button class="btn btn--primary" style="width:100%;" id="submitReview">Отправить отзыв</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer class="footer">
+  <div class="footer__top">
+    <div class="container">
+      <div class="footer__grid">
+        <div class="footer__brand">
+          <a href="/" class="footer__logo-link">
+            <img src="/assets/logo.png" alt="TauTrails" class="footer__logo-img">
+          </a>
+          <p class="footer__tagline">Горные маршруты Алматы и Казахстана.<br>Исследуй, делись, вдохновляй.</p>
+        </div>
+        <div class="footer__col">
+          <h4 class="footer__col-title">Маршруты</h4>
+          <ul class="footer__links">
+            <li><a href="/#trails">Все маршруты</a></li>
+            <li><a href="/#trails">Лёгкие</a></li>
+            <li><a href="/#trails">Средние</a></li>
+            <li><a href="/#trails">Сложные</a></li>
+          </ul>
+        </div>
+        <div class="footer__col">
+          <h4 class="footer__col-title">О проекте</h4>
+          <ul class="footer__links">
+            <li><a href="/#about">О нас</a></li>
+            <li><a href="/register">Регистрация</a></li>
+            <li><a href="/login">Войти</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="footer__bottom">
+    <div class="container">
+      <div class="footer__bottom-inner">
+        <p>© 2024 TauTrails · Алматы, Казахстан</p>
+        <p class="footer__bottom-right">Сделано с ❤️ для гор</p>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="/js/apiClient.js"></script>
+<script src="/js/trail.js"></script>
+</body>
+</html>
