@@ -34,7 +34,11 @@ let currentUser = null;
 
 async function initNavAuth() {
   try {
+<<<<<<< HEAD
     const res = await fetch('/api/auth/me', { credentials: 'include' });
+=======
+    const res = await fetch('/api/auth/me');
+>>>>>>> b1ec530a5caf99bf04f1e98d06b5ced7160c874f
     if (res.ok) {
       currentUser = await res.json();
 
@@ -125,6 +129,7 @@ function openLightbox(src) {
 
 async function loadTrail() {
   try {
+<<<<<<< HEAD
     const trail = await api(`/api/trails/${trailId}`, { silent: true });
     renderTrail(trail);
   } catch (err) {
@@ -141,6 +146,13 @@ async function loadTrail() {
       document.getElementById('trailHeroInfo').innerHTML =
         '<p style="color:rgba(255,255,255,0.45);padding:20px 0;">Ошибка загрузки. <a href="javascript:loadTrail()" style="color:#4ade80;">Попробовать снова</a></p>';
     }
+=======
+    const res = await fetch(`/api/trails/${trailId}`);
+    if (!res.ok) throw new Error();
+    renderTrail(await res.json());
+  } catch {
+    document.getElementById('trailHeroInfo').innerHTML = '<p style="color:#ef4444">Маршрут не найден</p>';
+>>>>>>> b1ec530a5caf99bf04f1e98d06b5ced7160c874f
   }
 }
 
@@ -269,6 +281,7 @@ document.getElementById('submitReview')?.addEventListener('click', async () => {
   const btn = document.getElementById('submitReview');
   btn.disabled = true; btn.textContent = 'Отправка...';
   try {
+<<<<<<< HEAD
     await api.post(`/api/trails/${trailId}/reviews`, {
       author_name: currentUser.username,
       rating: selectedRating,
@@ -276,6 +289,20 @@ document.getElementById('submitReview')?.addEventListener('click', async () => {
       sticker: selectedSticker,
       user_id: currentUser.id
     });
+=======
+    const res = await fetch(`/api/trails/${trailId}/reviews`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        author_name: currentUser.username,
+        rating: selectedRating,
+        comment: document.getElementById('reviewText').value.trim(),
+        sticker: selectedSticker,
+        user_id: currentUser.id
+      })
+    });
+    if (!res.ok) throw new Error();
+>>>>>>> b1ec530a5caf99bf04f1e98d06b5ced7160c874f
     alertEl.className = 'alert alert--success show';
     alertEl.textContent = '✅ Отзыв добавлен! Спасибо.';
     document.getElementById('reviewText').value = '';
@@ -283,6 +310,7 @@ document.getElementById('submitReview')?.addEventListener('click', async () => {
     document.querySelectorAll('.review-form__stars label').forEach(l => { l.classList.remove('selected'); l.style.color = ''; });
     document.querySelectorAll('.sticker-btn').forEach(b => b.classList.remove('active'));
     setTimeout(() => loadTrail(), 1000);
+<<<<<<< HEAD
   } catch (err) {
     if (err instanceof ApiError && err.details?.fields) {
       const fieldErrs = Object.values(err.details.fields).join('; ');
@@ -292,6 +320,11 @@ document.getElementById('submitReview')?.addEventListener('click', async () => {
       alertEl.className = 'alert alert--error show';
       alertEl.textContent = 'Ошибка соединения. Попробуйте снова.';
     }
+=======
+  } catch {
+    alertEl.className = 'alert alert--error show';
+    alertEl.textContent = 'Ошибка. Попробуйте снова.';
+>>>>>>> b1ec530a5caf99bf04f1e98d06b5ced7160c874f
   }
   btn.disabled = false; btn.textContent = 'Отправить отзыв';
 });

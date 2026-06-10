@@ -7,11 +7,14 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/css/main.css">
+<<<<<<< HEAD
   <style>
     .password-strength { margin-top: 6px; height: 4px; border-radius: 2px; background: var(--color-border, #ddd); overflow: hidden; }
     .password-strength__bar { height: 100%; width: 0; border-radius: 2px; transition: width .3s, background .3s; }
     .password-hint { font-size: 11px; margin-top: 4px; }
   </style>
+=======
+>>>>>>> b1ec530a5caf99bf04f1e98d06b5ced7160c874f
 </head>
 <body class="auth-body">
 
@@ -24,6 +27,7 @@
     <h2 class="auth-title">Создать аккаунт</h2>
     <p class="auth-subtitle">Присоединяйтесь к сообществу любителей гор</p>
 
+<<<<<<< HEAD
     <div id="authAlert" class="alert" role="alert" aria-live="polite"></div>
 
     <div class="form-group">
@@ -53,12 +57,37 @@
         <button type="button" class="input-password-toggle" aria-label="Показать пароль"
                 onclick="togglePassword('regConfirm', this)">👁</button>
       </div>
+=======
+    <div id="authAlert" class="alert"></div>
+
+    <div class="form-group">
+      <label>Имя пользователя *</label>
+      <input type="text" id="regUsername" placeholder="mountainhiker" autocomplete="username">
+    </div>
+    <div class="form-group">
+      <label>Email</label>
+      <input type="email" id="regEmail" placeholder="you@example.com" autocomplete="email">
+    </div>
+    <div class="form-group">
+      <label>Пароль *</label>
+      <input type="password" id="regPassword" placeholder="Минимум 6 символов" autocomplete="new-password">
+    </div>
+    <div class="form-group">
+      <label>Подтвердите пароль *</label>
+      <input type="password" id="regConfirm" placeholder="••••••••" autocomplete="new-password">
+>>>>>>> b1ec530a5caf99bf04f1e98d06b5ced7160c874f
     </div>
 
     <button class="btn btn--primary btn--full" id="registerBtn">Зарегистрироваться</button>
 
     <div class="auth-divider"><span>уже есть аккаунт?</span></div>
+<<<<<<< HEAD
     <a href="/login" class="btn btn--secondary btn--full">Войти</a>
+=======
+
+    <a href="/login" class="btn btn--secondary btn--full">Войти</a>
+
+>>>>>>> b1ec530a5caf99bf04f1e98d06b5ced7160c874f
     <p class="auth-back"><a href="/">← Вернуться на главную</a></p>
   </div>
 </div>
@@ -66,6 +95,7 @@
 <script>
   fetch('/api/auth/me').then(r => { if (r.ok) window.location.href = '/'; });
 
+<<<<<<< HEAD
   function togglePassword(id, btn) {
     const inp = document.getElementById(id);
     if (inp.type === 'password') { inp.type = 'text'; btn.textContent = '🙈'; }
@@ -112,6 +142,20 @@
     if (!username || !password || !confirmPassword) return showAlert('Заполните обязательные поля');
     if (password !== confirmPassword) return showAlert('Пароли не совпадают');
     if (password.length < 6) return showAlert('Пароль минимум 6 символов');
+=======
+  async function doRegister() {
+    const username = document.getElementById('regUsername').value.trim();
+    const email = document.getElementById('regEmail').value.trim();
+    const password = document.getElementById('regPassword').value;
+    const confirmPassword = document.getElementById('regConfirm').value;
+    const alertEl = document.getElementById('authAlert');
+
+    if (!username || !password || !confirmPassword) {
+      alertEl.className = 'alert alert--error show';
+      alertEl.textContent = 'Заполните обязательные поля';
+      return;
+    }
+>>>>>>> b1ec530a5caf99bf04f1e98d06b5ced7160c874f
 
     const btn = document.getElementById('registerBtn');
     btn.disabled = true;
@@ -121,7 +165,10 @@
       const res = await fetch('/api/auth/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+<<<<<<< HEAD
         credentials: 'include',
+=======
+>>>>>>> b1ec530a5caf99bf04f1e98d06b5ced7160c874f
         body: JSON.stringify({ username, email, password, confirmPassword })
       });
       const data = await res.json();
@@ -129,10 +176,19 @@
       if (res.ok) {
         window.location.href = '/';
       } else {
+<<<<<<< HEAD
         showAlert(data.error || 'Ошибка регистрации');
       }
     } catch {
       showAlert('Ошибка соединения с сервером');
+=======
+        alertEl.className = 'alert alert--error show';
+        alertEl.textContent = data.error || 'Ошибка регистрации';
+      }
+    } catch {
+      alertEl.className = 'alert alert--error show';
+      alertEl.textContent = 'Ошибка соединения';
+>>>>>>> b1ec530a5caf99bf04f1e98d06b5ced7160c874f
     }
 
     btn.disabled = false;
@@ -145,4 +201,8 @@
   });
 </script>
 </body>
+<<<<<<< HEAD
 </html>
+=======
+</html>
+>>>>>>> b1ec530a5caf99bf04f1e98d06b5ced7160c874f

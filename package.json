@@ -1,6 +1,10 @@
 {
   "name": "tautrails",
+<<<<<<< HEAD
   "version": "2.0.0",
+=======
+  "version": "1.0.0",
+>>>>>>> b1ec530a5caf99bf04f1e98d06b5ced7160c874f
   "description": "Платформа горных маршрутов Алматы",
   "main": "server.js",
   "scripts": {
@@ -11,10 +15,16 @@
   "dependencies": {
     "bcryptjs": "^2.4.3",
     "express": "^4.19.2",
+<<<<<<< HEAD
     "jsonwebtoken": "^9.0.2",
     "multer": "^2.0.0",
     "sql.js": "^1.11.0",
     "cookie-parser": "^1.4.6"
+=======
+    "express-session": "^1.18.1",
+    "multer": "^2.0.0",
+    "sql.js": "^1.11.0"
+>>>>>>> b1ec530a5caf99bf04f1e98d06b5ced7160c874f
   },
   "devDependencies": {
     "nodemon": "^3.1.0",
