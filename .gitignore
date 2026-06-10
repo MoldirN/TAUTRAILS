@@ -1,1 +1,24 @@
+<<<<<<< HEAD
+# Dependencies
 node_modules/
+
+# Environment
+.env
+.env.local
+.env.production
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+=======
+node_modules/
+>>>>>>> b1ec530a5caf99bf04f1e98d06b5ced7160c874f

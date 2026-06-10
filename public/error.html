@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ошибка — TAUTRAILS</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/main.css">
+  <style>
+    .error-page {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 40px 20px;
+      background: var(--color-bg, #0a0a0a);
+    }
+    .error-code {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(80px, 20vw, 160px);
+      line-height: 1;
+      color: var(--color-green, #4caf50);
+      letter-spacing: 4px;
+      margin: 0;
+    }
+    .error-title {
+      font-size: clamp(18px, 4vw, 28px);
+      font-weight: 600;
+      color: #fff;
+      margin: 16px 0 12px;
+    }
+    .error-message {
+      font-size: 15px;
+      color: rgba(255,255,255,0.55);
+      max-width: 460px;
+      line-height: 1.6;
+      margin: 0 auto 32px;
+    }
+    .error-actions {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    .error-icon {
+      font-size: 48px;
+      margin-bottom: 8px;
+    }
+    .error-details {
+      margin-top: 24px;
+      padding: 12px 20px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 8px;
+      font-family: monospace;
+      font-size: 12px;
+      color: rgba(255,255,255,0.3);
+      max-width: 480px;
+      text-align: left;
+      word-break: break-all;
+    }
+  </style>
+</head>
+<body>
+<div class="error-page">
+  <div class="error-icon" id="errIcon">⛰️</div>
+  <h1 class="error-code" id="errCode">404</h1>
+  <h2 class="error-title" id="errTitle">Страница не найдена</h2>
+  <p class="error-message" id="errMessage">
+    Маршрут, который вы ищете, похоже, затерялся в горах.
+    Вернитесь на главную и найдите новый путь.
+  </p>
+  <div class="error-actions">
+    <a href="/" class="btn btn--primary">На главную</a>
+    <button class="btn btn--secondary" onclick="history.back()">Назад</button>
+  </div>
+  <div class="error-details" id="errDetails" style="display:none"></div>
+</div>
+
+<script>
+  const params = new URLSearchParams(location.search);
+  const code   = params.get('code') || '404';
+  const msg    = params.get('message');
+  const detail = params.get('detail');
+
+  const CONFIG = {
+    '400': { icon: '⚠️',  title: 'Некорректный запрос',        text: 'Запрос содержит ошибку. Проверьте введённые данные.' },
+    '401': { icon: '🔐',  title: 'Требуется авторизация',       text: 'Войдите в аккаунт, чтобы продолжить.' },
+    '403': { icon: '🚫',  title: 'Доступ запрещён',             text: 'У вас нет прав для доступа к этой странице.' },
+    '404': { icon: '🗺️', title: 'Страница не найдена',          text: 'Маршрут, который вы ищете, похоже, затерялся в горах.' },
+    '409': { icon: '♻️',  title: 'Конфликт данных',             text: 'Такая запись уже существует.' },
+    '413': { icon: '📦',  title: 'Файл слишком большой',        text: 'Максимальный размер файла — 10 МБ.' },
+    '422': { icon: '📋',  title: 'Ошибка валидации',            text: 'Проверьте правильность заполнения формы.' },
+    '429': { icon: '⏳',  title: 'Слишком много запросов',      text: 'Подождите немного и попробуйте снова.' },
+    '500': { icon: '🔧',  title: 'Ошибка сервера',              text: 'Что-то пошло не так на нашей стороне. Мы уже разбираемся.' },
+    '503': { icon: '🌩️', title: 'Сервис временно недоступен',  text: 'Технические работы. Попробуйте через несколько минут.' },
+  };
+
+  const cfg = CONFIG[code] || CONFIG['500'];
+  document.getElementById('errIcon').textContent    = cfg.icon;
+  document.getElementById('errCode').textContent    = code;
+  document.getElementById('errTitle').textContent   = cfg.title;
+  document.getElementById('errMessage').textContent = msg || cfg.text;
+
+  if (detail) {
+    const el = document.getElementById('errDetails');
+    el.textContent = detail;
+    el.style.display = 'block';
+  }
+
+  // Для 401 — показываем кнопку входа
+  if (code === '401') {
+    const actions = document.querySelector('.error-actions');
+    const loginBtn = document.createElement('a');
+    loginBtn.href = '/login?redirect=' + encodeURIComponent(document.referrer || '/');
+    loginBtn.className = 'btn btn--primary';
+    loginBtn.textContent = 'Войти';
+    actions.insertBefore(loginBtn, actions.firstChild);
+    actions.querySelector('a[href="/"]').className = 'btn btn--secondary';
+  }
+</script>
+</body>
+</html>

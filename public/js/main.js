@@ -33,7 +33,11 @@ document.querySelectorAll('a[href^="#"]').forEach(a => {
 // ===== АВТОРИЗАЦИЯ В NAVBAR =====
 async function initNavAuth() {
   try {
+<<<<<<< HEAD
+    const res = await fetch('/api/auth/me', { credentials: 'include' });
+=======
     const res = await fetch('/api/auth/me');
+>>>>>>> b1ec530a5caf99bf04f1e98d06b5ced7160c874f
     if (res.ok) {
       const user = await res.json();
       document.getElementById('navAuthLinks').style.display = 'none';
@@ -58,11 +62,19 @@ async function initNavAuth() {
   } catch (e) {}
 
   document.getElementById('navLogout')?.addEventListener('click', async () => {
+<<<<<<< HEAD
+    await fetch('/api/auth/logout', { method: 'POST', credentials: 'include' });
+    location.reload();
+  });
+  document.getElementById('mobileLogout')?.addEventListener('click', async () => {
+    await fetch('/api/auth/logout', { method: 'POST', credentials: 'include' });
+=======
     await fetch('/api/auth/logout', { method: 'POST' });
     location.reload();
   });
   document.getElementById('mobileLogout')?.addEventListener('click', async () => {
     await fetch('/api/auth/logout', { method: 'POST' });
+>>>>>>> b1ec530a5caf99bf04f1e98d06b5ced7160c874f
     location.reload();
   });
 }
