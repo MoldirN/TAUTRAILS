@@ -1,14 +1,12 @@
 const jwt = require('jsonwebtoken');
-
-const JWT_SECRET = process.env.JWT_SECRET || 'tautrails-jwt-secret-2024-change-in-prod';
 const COOKIE_ACCESS  = 'tt_access';
 const COOKIE_REFRESH = 'tt_refresh';
 
 function signAccess(payload) {
-  return jwt.sign(payload, JWT_SECRET, { expiresIn: '7d' });
+  return jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '7d' });
 }
 function signRefresh(payload) {
-  return jwt.sign(payload, JWT_SECRET, { expiresIn: '30d' });
+  return jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '30d' });
 }
 function cookieOpts(maxAge) {
   return { httpOnly: true, sameSite: 'lax', secure: process.env.NODE_ENV === 'production', maxAge };
@@ -32,23 +30,79 @@ function getToken(req) {
 function requireAuth(db) {
   return (req, res, next) => {
     const token = getToken(req);
-    if (!token) return res.status(401).json({ error: 'Не авторизован' });
+    const refreshToken = req.cookies?.[COOKIE_REFRESH];
+
+    if (!token) {
+      if (!refreshToken) {
+        return res.status(401).json({ error: 'Не авторизован' });
+      }
+
+      try {
+        const decoded = jwt.verify(refreshToken, process.env.JWT_SECRET);
+
+        const user = db.get(
+          'SELECT id, username, role, is_banned FROM users WHERE id = ?',
+          [decoded.id]
+        );
+
+        if (!user || user.is_banned) {
+          clearTokens(res);
+          return res.status(401).json({ error: 'Аккаунт недоступен' });
+        }
+
+        const payload = {
+          id: user.id,
+          username: user.username,
+          role: user.role
+        };
+
+        setTokens(res, payload);
+        req.user = payload;
+        return next();
+
+      } catch {
+        return res.status(401).json({ error: 'Сессия истекла' });
+      }
+    }
+
     try {
-      req.user = jwt.verify(token, JWT_SECRET);
+      req.user = jwt.verify(token, process.env.JWT_SECRET);
       return next();
     } catch (err) {
-      if (err.name !== 'TokenExpiredError') return res.status(401).json({ error: 'Недействительный токен' });
-      const refreshToken = req.cookies?.[COOKIE_REFRESH];
-      if (!refreshToken) return res.status(401).json({ error: 'Сессия истекла' });
-      let decoded;
-      try { decoded = jwt.verify(refreshToken, JWT_SECRET); }
-      catch { clearTokens(res); return res.status(401).json({ error: 'Сессия истекла, войдите снова' }); }
-      const user = db.get('SELECT id, username, role, is_banned FROM users WHERE id = ?', [decoded.id]);
-      if (!user || user.is_banned) { clearTokens(res); return res.status(401).json({ error: 'Аккаунт недоступен' }); }
-      const payload = { id: user.id, username: user.username, role: user.role };
-      setTokens(res, payload);
-      req.user = payload;
-      next();
+      if (err.name !== 'TokenExpiredError') {
+        return res.status(401).json({ error: 'Недействительный токен' });
+      }
+      
+      if (!refreshToken) {
+        return res.status(401).json({ error: 'Сессия истекла' });
+      }
+
+      try {
+        const decoded = jwt.verify(refreshToken, process.env.JWT_SECRET);
+
+        const user = db.get(
+          'SELECT id, username, role, is_banned FROM users WHERE id = ?',
+          [decoded.id]
+        );
+
+        if (!user || user.is_banned) {
+          clearTokens(res);
+          return res.status(401).json({ error: 'Аккаунт недоступен' });
+        }
+
+        const payload = {
+          id: user.id,
+          username: user.username,
+          role: user.role
+        };
+
+        setTokens(res, payload);
+        req.user = payload;
+        return next();
+
+      } catch {
+        return res.status(401).json({ error: 'Сессия истекла' });
+      }
     }
   };
 }
@@ -56,7 +110,7 @@ function requireAuth(db) {
 function optionalAuth(req, res, next) {
   const token = getToken(req);
   if (!token) return next();
-  try { req.user = jwt.verify(token, JWT_SECRET); } catch {}
+  try { req.user = jwt.verify(token, process.env.JWT_SECRET); } catch {}
   next();
 }
 
