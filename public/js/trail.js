@@ -34,11 +34,7 @@ let currentUser = null;
 
 async function initNavAuth() {
   try {
-<<<<<<< HEAD
-    const res = await fetch('/api/auth/me', { credentials: 'include' });
-=======
     const res = await fetch('/api/auth/me');
->>>>>>> b1ec530a5caf99bf04f1e98d06b5ced7160c874f
     if (res.ok) {
       currentUser = await res.json();
 
@@ -129,30 +125,11 @@ function openLightbox(src) {
 
 async function loadTrail() {
   try {
-<<<<<<< HEAD
-    const trail = await api(`/api/trails/${trailId}`, { silent: true });
-    renderTrail(trail);
-  } catch (err) {
-    if (err.status === 404) {
-      document.getElementById('trailHeroInfo').innerHTML = `
-        <div style="padding:40px 0;text-align:center;">
-          <div style="font-size:48px;margin-bottom:12px;">🗺️</div>
-          <h2 style="color:#ef4444;margin-bottom:8px;">Маршрут не найден</h2>
-          <p style="color:rgba(255,255,255,0.45);font-size:14px;">Возможно, маршрут был удалён или ссылка устарела.</p>
-          <a href="/" class="btn btn--primary" style="margin-top:20px;display:inline-block;">На главную</a>
-        </div>`;
-    } else {
-      showToast('Не удалось загрузить маршрут. Попробуйте обновить страницу.', 'error');
-      document.getElementById('trailHeroInfo').innerHTML =
-        '<p style="color:rgba(255,255,255,0.45);padding:20px 0;">Ошибка загрузки. <a href="javascript:loadTrail()" style="color:#4ade80;">Попробовать снова</a></p>';
-    }
-=======
     const res = await fetch(`/api/trails/${trailId}`);
     if (!res.ok) throw new Error();
     renderTrail(await res.json());
   } catch {
     document.getElementById('trailHeroInfo').innerHTML = '<p style="color:#ef4444">Маршрут не найден</p>';
->>>>>>> b1ec530a5caf99bf04f1e98d06b5ced7160c874f
   }
 }
 
@@ -281,15 +258,6 @@ document.getElementById('submitReview')?.addEventListener('click', async () => {
   const btn = document.getElementById('submitReview');
   btn.disabled = true; btn.textContent = 'Отправка...';
   try {
-<<<<<<< HEAD
-    await api.post(`/api/trails/${trailId}/reviews`, {
-      author_name: currentUser.username,
-      rating: selectedRating,
-      comment: document.getElementById('reviewText').value.trim(),
-      sticker: selectedSticker,
-      user_id: currentUser.id
-    });
-=======
     const res = await fetch(`/api/trails/${trailId}/reviews`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -302,7 +270,6 @@ document.getElementById('submitReview')?.addEventListener('click', async () => {
       })
     });
     if (!res.ok) throw new Error();
->>>>>>> b1ec530a5caf99bf04f1e98d06b5ced7160c874f
     alertEl.className = 'alert alert--success show';
     alertEl.textContent = '✅ Отзыв добавлен! Спасибо.';
     document.getElementById('reviewText').value = '';
@@ -310,21 +277,9 @@ document.getElementById('submitReview')?.addEventListener('click', async () => {
     document.querySelectorAll('.review-form__stars label').forEach(l => { l.classList.remove('selected'); l.style.color = ''; });
     document.querySelectorAll('.sticker-btn').forEach(b => b.classList.remove('active'));
     setTimeout(() => loadTrail(), 1000);
-<<<<<<< HEAD
-  } catch (err) {
-    if (err instanceof ApiError && err.details?.fields) {
-      const fieldErrs = Object.values(err.details.fields).join('; ');
-      alertEl.className = 'alert alert--error show';
-      alertEl.textContent = fieldErrs;
-    } else if (!(err instanceof ApiError)) {
-      alertEl.className = 'alert alert--error show';
-      alertEl.textContent = 'Ошибка соединения. Попробуйте снова.';
-    }
-=======
   } catch {
     alertEl.className = 'alert alert--error show';
     alertEl.textContent = 'Ошибка. Попробуйте снова.';
->>>>>>> b1ec530a5caf99bf04f1e98d06b5ced7160c874f
   }
   btn.disabled = false; btn.textContent = 'Отправить отзыв';
 });
