@@ -153,12 +153,14 @@ function asyncHandler(fn) {
 // ── Middleware: 404 для неизвестных маршрутов ─────────────────────────────────
 
 function notFound(req, res, next) {
-  // Для API-маршрутов — JSON; для страниц — можно отдать HTML (если настроен)
-  next(new AppError(
-    `Маршрут ${req.method} ${req.originalUrl} не найден`,
-    404,
-    'NOT_FOUND'
-  ));
+  if (req.originalUrl.startsWith('/api')) {
+    return next(new AppError(
+      `Маршрут ${req.method} ${req.originalUrl} не найден`,
+      404,
+      'NOT_FOUND'
+    ));
+  }
+  return res.redirect('/error.html?code=404');
 }
 
 // ── Обработка специфичных ошибок сторонних библиотек ─────────────────────────
@@ -192,36 +194,21 @@ function normalizeError(err) {
 
 // ── Глобальный error-handler (4 аргумента) ───────────────────────────────────
 
-function globalErrorHandler(err, req, res, next) { // eslint-disable-line no-unused-vars
-  const normalized = normalizeError(err);
+function globalErrorHandler(err, req, res, next) {
 
-  const status  = normalized.status  || 500;
-  const code    = normalized.code    || httpCodeName(status);
-  const message = normalized.message || 'Внутренняя ошибка сервера';
-  const details = normalized.details || undefined;
+  const status = err.status || 500;
 
-  // Логирование
-  const logLine = `[${new Date().toISOString()}] ${req.method} ${req.originalUrl} → ${status} ${code}: ${message}`;
-  if (status >= 500) {
-    console.error(logLine);
-    if (!IS_PROD) console.error(err.stack);
-  } else {
-    console.warn(logLine);
+  if (req.originalUrl.startsWith('/api')) {
+    return res.status(status).json({
+      error: err.message,
+      code: err.code,
+      status
+    });
   }
 
-  const body = {
-    error:  message,
-    code,
-    status,
-    path:   req.originalUrl,
-    timestamp: new Date().toISOString(),
-  };
-
-  if (details)       body.details = details;
-  // Stack только в dev-режиме для 5xx
-  if (!IS_PROD && status >= 500 && err.stack) body.stack = err.stack;
-
-  res.status(status).json(body);
+  return res.redirect(
+    `/error.html?code=${status}&message=${encodeURIComponent(err.message)}`
+  );
 }
 
 // ── Простой request-logger ────────────────────────────────────────────────────
