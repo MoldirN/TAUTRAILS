@@ -6,11 +6,7 @@ const loginAlert = document.getElementById('loginAlert');
 
 async function checkAuth() {
   try {
-<<<<<<< HEAD
-    const res = await fetch('/api/auth/me', { credentials: 'include' });
-=======
     const res = await fetch('/api/auth/me');
->>>>>>> b1ec530a5caf99bf04f1e98d06b5ced7160c874f
     if (res.ok) {
       const user = await res.json();
       if (user.role === 'admin') showAdmin();
@@ -53,11 +49,7 @@ document.getElementById('loginPassword')?.addEventListener('keydown', e => {
 });
 
 document.getElementById('logoutBtn')?.addEventListener('click', async () => {
-<<<<<<< HEAD
-  await fetch('/api/auth/logout', { method: 'POST', credentials: 'include' });
-=======
   await fetch('/api/auth/logout', { method: 'POST' });
->>>>>>> b1ec530a5caf99bf04f1e98d06b5ced7160c874f
   window.location.href = '/login';
 });
 

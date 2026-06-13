@@ -59,15 +59,15 @@ async function initDB() {
       image_path TEXT
     );
     CREATE TABLE IF NOT EXISTS reviews (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      trail_id INTEGER,
-      user_id INTEGER,
-      author_name TEXT NOT NULL,
-      rating INTEGER,
-      comment TEXT,
-      sticker TEXT,
-      is_hidden INTEGER DEFAULT 0,
-      created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    trail_id INTEGER,
+    user_id INTEGER,
+    author_name TEXT NOT NULL,
+    rating INTEGER,
+    comment TEXT,
+    sticker TEXT,
+    is_hidden INTEGER DEFAULT 0,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
     );
   `);
 
@@ -98,15 +98,23 @@ async function initDB() {
   }
 
   function lastInsertId() {
-    return get('SELECT last_insert_rowid() as id').id;
+    const row = get('SELECT last_insert_rowid() as id');
+    return row ? row.id : null;
   }
 
   // Создаём админа
-  const admin = get('SELECT id FROM users WHERE username = ?', ['admin']);
+  const adminLogin = process.env.ADMIN_LOGIN || 'admin';
+  const adminPassword = process.env.ADMIN_PASSWORD || 'admin123';
+  const adminEmail = 'admin@tautrails.kz';
+  
+  const admin = get('SELECT id FROM users WHERE username = ? OR email = ?', [adminLogin, adminEmail]);
+  
   if (!admin) {
-    const hash = bcrypt.hashSync('admin123', 10);
-    run('INSERT INTO users (username, email, password, role) VALUES (?, ?, ?, ?)', ['admin', 'admin@tautrails.kz', hash, 'admin']);
-    console.log('✅ Админ создан: admin / admin123');
+    const hash = bcrypt.hashSync(adminPassword, 10);
+    run('INSERT INTO users (username, email, password, role) VALUES (?, ?, ?, ?)', [adminLogin, adminEmail, hash, 'admin']);
+    console.log(`✅ Админ создан через конфигурацию .env. Логин: [${adminLogin}]`);
+  } else {
+    console.log(`ℹ️ Инициализация: Админ [${adminLogin}] уже присутствует в базе данных.`);
   }
 
   // Добавляем колонки если их нет (миграция)
@@ -116,7 +124,7 @@ async function initDB() {
   try { db.run('ALTER TABLE reviews ADD COLUMN sticker TEXT'); save(); } catch(e) {}
   try { db.run('ALTER TABLE reviews ADD COLUMN is_hidden INTEGER DEFAULT 0'); save(); } catch(e) {}
   try { db.run('ALTER TABLE reviews ADD COLUMN user_id INTEGER'); save(); } catch(e) {}
-
+  
   // Тестовые маршруты
   const count = get('SELECT COUNT(*) as c FROM trails');
   if (!count || count.c === 0) {
