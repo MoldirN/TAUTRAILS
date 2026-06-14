@@ -75,19 +75,25 @@ module.exports = function(db) {
     if (existingEmail) return res.status(400).json({ error: 'Email уже используется' });
 
     const hash = bcrypt.hashSync(password, 10);
-    db.run('INSERT INTO users (username, email, password, role) VALUES (?, ?, ?, ?)',
-      [username, email || null, hash, 'user']);
-
-    const newUser = db.get('SELECT * FROM users WHERE username = ?', [username]);
+    
+    db.run(
+      'INSERT INTO users (username, email, password, role) VALUES (?, ?, ?, ?)',
+      [username, email || null, hash, 'user']
+    );
+    
+    const newUser = db.get(
+      'SELECT * FROM users WHERE username = ?',
+      [username]
+    );
     
     const payload = {
       id: newUser.id,
       username: newUser.username,
       role: newUser.role
     };
-
+    
     setTokens(res, payload);
-
+    
     res.json({
       success: true,
       role: newUser.role,
