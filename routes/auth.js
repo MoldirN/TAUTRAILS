@@ -7,6 +7,30 @@ module.exports = function(db) {
   const router = express.Router();
 
   // Логин
+  /**
+ * @swagger
+ * /api/auth/login:
+ *   post:
+ *     summary: Вход пользователя
+ *     tags:
+ *       - Auth
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               username:
+ *                 type: string
+ *               password:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Успешный вход
+ *       401:
+ *         description: Ошибка авторизации
+ */
   router.post('/login', (req, res) => {
     const { username, password } = req.body;
     
@@ -36,6 +60,43 @@ module.exports = function(db) {
   });
 
   // Регистрация
+  /**
+ * @swagger
+ * /api/auth/register:
+ *   post:
+ *     summary: Регистрация пользователя
+ *     tags:
+ *       - Auth
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - username
+ *               - email
+ *               - password
+ *               - confirmPassword
+ *             properties:
+ *               username:
+ *                 type: string
+ *                 example: user123
+ *               email:
+ *                 type: string
+ *                 example: user@tautrails.kz
+ *               password:
+ *                 type: string
+ *                 example: 123456
+ *               confirmPassword:
+ *                 type: string
+ *                 example: 123456
+ *     responses:
+ *       200:
+ *         description: Пользователь зарегистрирован
+ *       400:
+ *         description: Ошибка валидации
+ */
   router.post('/register', (req, res) => {
     const { username, email, password, confirmPassword } = req.body;
     
@@ -102,12 +163,38 @@ module.exports = function(db) {
   });
 
   // Выход
+  /**
+ * @swagger
+ * /api/auth/logout:
+ *   post:
+ *     summary: Выход пользователя
+ *     tags:
+ *       - Auth
+ *     responses:
+ *       200:
+ *         description: Выход выполнен
+ */
   router.post('/logout', (req, res) => {
     clearTokens(res);
     res.json({ success: true });
   });
 
   // Отзывы текущего пользователя
+  /**
+ * @swagger
+ * /api/auth/my-reviews:
+ *   get:
+ *     summary: Получить отзывы текущего пользователя
+ *     tags:
+ *       - Auth
+ *     security:
+ *       - cookieAuth: []
+ *     responses:
+ *       200:
+ *         description: Список отзывов
+ *       401:
+ *         description: Не авторизован
+ */
   router.get('/my-reviews', (req, res) => {
     const token = req.cookies?.tt_access;
 
@@ -133,6 +220,23 @@ module.exports = function(db) {
   });
 
   // Текущий пользователь
+  /**
+ * @swagger
+ * /api/auth/me:
+ *   get:
+ *     summary: Получить текущего пользователя
+ *     tags:
+ *       - Auth
+ *     security:
+ *       - cookieAuth: []
+ *     responses:
+ *       200:
+ *         description: Данные пользователя
+ *       401:
+ *         description: Не авторизован
+ *       404:
+ *         description: Пользователь не найден
+ */
   router.get('/me', requireAuth(db), (req, res) => {
     const user = db.get(
       'SELECT id, username, email, role, avatar, created_at FROM users WHERE id = ?',

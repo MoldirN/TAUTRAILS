@@ -46,7 +46,25 @@ module.exports = function(db) {
   
   const upload = multer({ storage, limits: { fileSize: 10 * 1024 * 1024 } });
 
+  
   // Статистика
+  /**
+ * @swagger
+ * /api/admin/stats:
+ *   get:
+ *     summary: Получить статистику сайта (админ)
+ *     tags:
+ *       - Admin
+ *     security:
+ *       - cookieAuth: []
+ *     responses:
+ *       200:
+ *         description: Статистика получена
+ *       401:
+ *         description: Не авторизован
+ *       403:
+ *         description: Нет доступа (не админ)
+ */
   router.get('/stats', requireAdmin, (req, res) => {
     const trails = db.get('SELECT COUNT(*) as c FROM trails');
     const reviews = db.get('SELECT COUNT(*) as c FROM reviews');
@@ -61,11 +79,61 @@ module.exports = function(db) {
   });
 
   // ===== МАРШРУТЫ =====
+  /**
+ * @swagger
+ * /api/admin/trails:
+ *   get:
+ *     summary: Получить все маршруты (админ)
+ *     tags:
+ *       - Admin Trails
+ *     security:
+ *       - cookieAuth: []
+ *     responses:
+ *       200:
+ *         description: Список маршрутов
+ */
   router.get('/trails', requireAdmin, (req, res) => {
     const trails = db.all('SELECT * FROM trails ORDER BY id DESC');
     res.json(trails);
   });
 
+  /**
+ * @swagger
+ * /api/admin/trails:
+ *   post:
+ *     summary: Создать маршрут
+ *     tags:
+ *       - Admin Trails
+ *     security:
+ *       - cookieAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               name:
+ *                 type: string
+ *               description:
+ *                 type: string
+ *               difficulty:
+ *                 type: string
+ *                 enum: [easy, moderate, hard]
+ *               length_km:
+ *                 type: number
+ *               elevation_gain:
+ *                 type: number
+ *               est_time_min:
+ *                 type: number
+ *               region:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Маршрут создан
+ *       400:
+ *         description: Ошибка валидации
+ */
   router.post('/trails', requireAdmin, upload.fields([
     { name: 'cover', maxCount: 1 },
     { name: 'images', maxCount: 10 }
@@ -134,6 +202,28 @@ module.exports = function(db) {
 
     res.json({ success: true, id: newId });
   });
+
+  /**
+ * @swagger
+ * /api/admin/trails/{id}:
+ *   put:
+ *     summary: Обновить маршрут
+ *     tags:
+ *       - Admin Trails
+ *     security:
+ *       - cookieAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: Маршрут обновлён
+ *       404:
+ *         description: Не найден
+ */
 
   router.put('/trails/:id', requireAdmin, upload.fields([
     { name: 'cover', maxCount: 1 },
@@ -239,6 +329,19 @@ module.exports = function(db) {
     res.json({ success: true });
   });
 
+/**
+ * @swagger
+ * /api/admin/trails/{id}:
+ *   delete:
+ *     summary: Удалить маршрут
+ *     tags:
+ *       - Admin Trails
+ *     security:
+ *       - cookieAuth: []
+ *     responses:
+ *       200:
+ *         description: Удалено
+ */
   router.delete('/trails/:id', requireAdmin, (req, res) => {
     db.run('DELETE FROM trails WHERE id = ?', [req.params.id]);
     db.run('DELETE FROM reviews WHERE trail_id = ?', [req.params.id]);
@@ -247,6 +350,25 @@ module.exports = function(db) {
   });
 
   // Удалить фото маршрута
+  /**
+ * @swagger
+ * /api/admin/trail-images/{id}:
+ *   delete:
+ *     summary: Удалить изображение маршрута
+ *     tags:
+ *       - Admin
+ *     security:
+ *       - cookieAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: Изображение удалено
+ */
   router.delete('/trail-images/:id', requireAdmin, (req, res) => {
     const img = db.get('SELECT * FROM trail_images WHERE id = ?', [req.params.id]);
     if (img) {
@@ -258,11 +380,52 @@ module.exports = function(db) {
   });
 
   // ===== ПОЛЬЗОВАТЕЛИ =====
+  /**
+ * @swagger
+ * /api/admin/users:
+ *   get:
+ *     summary: Получить список пользователей
+ *     tags:
+ *       - Admin Users
+ *     security:
+ *       - cookieAuth: []
+ *     responses:
+ *       200:
+ *         description: Список пользователей
+ *       401:
+ *         description: Не авторизован
+ *       403:
+ *         description: Нет прав администратора
+ */
   router.get('/users', requireAdmin, (req, res) => {
     const users = db.all('SELECT id, username, email, role, is_banned, created_at FROM users ORDER BY id DESC');
     res.json(users);
   });
 
+  /**
+ * @swagger
+ * /api/admin/users/{id}/ban:
+ *   put:
+ *     summary: Заблокировать или разблокировать пользователя
+ *     tags:
+ *       - Admin Users
+ *     security:
+ *       - cookieAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: ID пользователя
+ *     responses:
+ *       200:
+ *         description: Статус блокировки изменён
+ *       400:
+ *         description: Нельзя заблокировать администратора
+ *       404:
+ *         description: Пользователь не найден
+ */
   router.put('/users/:id/ban', requireAdmin, (req, res) => {
     const user = db.get('SELECT * FROM users WHERE id = ?', [req.params.id]);
     if (!user) return res.status(404).json({ error: 'Пользователь не найден' });
@@ -271,6 +434,30 @@ module.exports = function(db) {
     res.json({ success: true, is_banned: !user.is_banned });
   });
 
+  /**
+ * @swagger
+ * /api/admin/users/{id}:
+ *   delete:
+ *     summary: Удалить пользователя
+ *     tags:
+ *       - Admin Users
+ *     security:
+ *       - cookieAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: ID пользователя
+ *     responses:
+ *       200:
+ *         description: Пользователь удалён
+ *       400:
+ *         description: Нельзя удалить администратора
+ *       404:
+ *         description: Пользователь не найден
+ */
   router.delete('/users/:id', requireAdmin, (req, res) => {
     const user = db.get('SELECT * FROM users WHERE id = ?', [req.params.id]);
     if (!user) return res.status(404).json({ error: 'Пользователь не найден' });
@@ -280,6 +467,38 @@ module.exports = function(db) {
     res.json({ success: true });
   });
 
+  /**
+ * @swagger
+ * /api/admin/users/{id}/role:
+ *   put:
+ *     summary: Изменить роль пользователя
+ *     tags:
+ *       - Admin Users
+ *     security:
+ *       - cookieAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - role
+ *             properties:
+ *               role:
+ *                 type: string
+ *                 enum: [user, admin]
+ *                 example: admin
+ *     responses:
+ *       200:
+ *         description: Роль изменена
+ */
   router.put('/users/:id/role', requireAdmin, (req, res) => {
     const { role } = req.body;
     if (!['user', 'admin'].includes(role)) return res.status(400).json({ error: 'Неверная роль' });
@@ -288,6 +507,23 @@ module.exports = function(db) {
   });
 
   // ===== ОТЗЫВЫ =====
+  /**
+ * @swagger
+ * /api/admin/reviews:
+ *   get:
+ *     summary: Получить все отзывы
+ *     tags:
+ *       - Admin Reviews
+ *     security:
+ *       - cookieAuth: []
+ *     responses:
+ *       200:
+ *         description: Список отзывов
+ *       401:
+ *         description: Не авторизован
+ *       403:
+ *         description: Нет прав администратора
+ */
   router.get('/reviews', requireAdmin, (req, res) => {
     const reviews = db.all(`
       SELECT r.*, t.name as trail_name 
@@ -298,6 +534,28 @@ module.exports = function(db) {
     res.json(reviews);
   });
 
+  /**
+ * @swagger
+ * /api/admin/reviews/{id}/hide:
+ *   put:
+ *     summary: Скрыть или показать отзыв
+ *     tags:
+ *       - Admin Reviews
+ *     security:
+ *       - cookieAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: ID отзыва
+ *     responses:
+ *       200:
+ *         description: Статус отзыва изменён
+ *       404:
+ *         description: Отзыв не найден
+ */
   router.put('/reviews/:id/hide', requireAdmin, (req, res) => {
     const review = db.get('SELECT * FROM reviews WHERE id = ?', [req.params.id]);
     if (!review) return res.status(404).json({ error: 'Отзыв не найден' });
@@ -305,6 +563,28 @@ module.exports = function(db) {
     res.json({ success: true });
   });
 
+  /**
+ * @swagger
+ * /api/admin/reviews/{id}:
+ *   delete:
+ *     summary: Удалить отзыв
+ *     tags:
+ *       - Admin Reviews
+ *     security:
+ *       - cookieAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: ID отзыва
+ *     responses:
+ *       200:
+ *         description: Отзыв удалён
+ *       404:
+ *         description: Отзыв не найден
+ */
   router.delete('/reviews/:id', requireAdmin, (req, res) => {
     const review = db.get('SELECT * FROM reviews WHERE id = ?', [req.params.id]);
     if (!review) return res.status(404).json({ error: 'Отзыв не найден' });

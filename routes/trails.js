@@ -5,6 +5,17 @@ module.exports = function(db) {
   const router = express.Router();
 
   // Публичная статистика для Hero секции
+  /**
+ * @swagger
+ * /api/trails/stats:
+ *   get:
+ *     summary: Получить публичную статистику
+ *     tags:
+ *       - Trails
+ *     responses:
+ *       200:
+ *         description: Статистика получена
+ */
   router.get('/stats', (req, res) => {
     const trailsRow = db.get('SELECT COUNT(*) as c FROM trails');
     const reviewsRow = db.get('SELECT COUNT(*) as c FROM reviews WHERE is_hidden = 0');
@@ -19,6 +30,27 @@ module.exports = function(db) {
     });
   });
 
+  /**
+ * @swagger
+ * /api/trails:
+ *   get:
+ *     summary: Получить список маршрутов
+ *     tags:
+ *       - Trails
+ *     parameters:
+ *       - in: query
+ *         name: difficulty
+ *         schema:
+ *           type: string
+ *           enum: [easy, moderate, hard]
+ *       - in: query
+ *         name: search
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Список маршрутов
+ */
   router.get('/', (req, res) => {
     const { difficulty, search } = req.query;
     let query = 'SELECT * FROM trails WHERE 1=1';
@@ -35,6 +67,25 @@ module.exports = function(db) {
     res.json(trails);
   });
 
+  /**
+ * @swagger
+ * /api/trails/{id}:
+ *   get:
+ *     summary: Получить маршрут по ID
+ *     tags:
+ *       - Trails
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: Маршрут найден
+ *       404:
+ *         description: Маршрут не найден
+ */
   router.get('/:id', (req, res) => {
     const trail = db.get('SELECT * FROM trails WHERE id = ?', [req.params.id]);
     if (!trail) return res.status(404).json({ error: 'Маршрут не найден' });
@@ -48,6 +99,49 @@ module.exports = function(db) {
     res.json({ ...trail, images, reviews });
   });
 
+  /**
+ * @swagger
+ * /api/trails/{id}/reviews:
+ *   post:
+ *     summary: Добавить отзыв
+ *     tags:
+ *       - Reviews
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - author_name
+ *               - rating
+ *             properties:
+ *               author_name:
+ *                 type: string
+ *                 example: Аружан
+ *               rating:
+ *                 type: integer
+ *                 minimum: 1
+ *                 maximum: 5
+ *                 example: 5
+ *               comment:
+ *                 type: string
+ *                 example: Отличный маршрут
+ *               sticker:
+ *                 type: string
+ *                 example: 👍
+ *     responses:
+ *       200:
+ *         description: Отзыв добавлен
+ *       400:
+ *         description: Ошибка валидации
+ */
   router.post('/:id/reviews', optionalAuth, (req, res) => {
     const { author_name, rating, comment, sticker} = req.body;
     if (!author_name || author_name.trim().length < 2) {
