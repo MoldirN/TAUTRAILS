@@ -180,5 +180,207 @@ module.exports = function(db) {
     res.json({ success: true });
   });
 
+  /**
+ * @swagger
+ * /api/trails/reviews/{id}:
+ *   put:
+ *     summary: Обновить отзыв
+ *     tags:
+ *       - Reviews
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: ID отзыва
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - author_name
+ *               - rating
+ *             properties:
+ *               author_name:
+ *                 type: string
+ *                 example: "Аружан"
+ *               rating:
+ *                 type: integer
+ *                 minimum: 1
+ *                 maximum: 5
+ *                 example: 5
+ *               comment:
+ *                 type: string
+ *                 example: "Отличный маршрут"
+ *               sticker:
+ *                 type: string
+ *                 example: "👍"
+ *     responses:
+ *       200:
+ *         description: Отзыв успешно обновлен
+ *       400:
+ *         description: Некорректные данные
+ */
+  router.put('/reviews/:id', optionalAuth, (req, res) => {
+    if (!req.user) {
+      return res.status(401).json({ error: 'Необходимо войти в систему' });
+    }
+    const review = db.get(
+      'SELECT * FROM reviews WHERE id = ?',
+      [req.params.id]
+    );
+    
+    if (!review) {
+      return res.status(404).json({ error: 'Отзыв не найден' });
+    }
+    
+    const isAdmin = req.user.role === 'admin';
+    
+    if (!isAdmin && review.user_id !== req.user.id) {
+      return res.status(403).json({ error: 'Недостаточно прав' });
+    }
+    
+    const {
+      author_name,
+      rating,
+      comment,
+      sticker
+    } = req.body;
+    
+    if (!author_name || author_name.trim().length < 2) {
+      return res.status(400).json({
+        error: 'Имя автора должно содержать минимум 2 символа'
+      });
+    }
+    
+    const numericRating = Number(rating);
+    
+    if (
+      !Number.isInteger(numericRating) ||
+      numericRating < 1 ||
+      numericRating > 5
+    ) {
+      return res.status(400).json({
+        error: 'Оценка должна быть от 1 до 5'
+      });
+    }
+    
+    db.run(
+      `UPDATE reviews
+      SET author_name = ?,
+      rating = ?,
+      comment = ?,
+      sticker = ?
+      WHERE id = ?`,
+      [
+        author_name,
+        numericRating,
+        comment || '',
+        sticker || null,
+        req.params.id
+      ]
+    );
+    
+    const all = db.all(
+      'SELECT rating FROM reviews WHERE trail_id = ? AND is_hidden = 0',
+      [review.trail_id]
+    );
+    
+    const avg = all.reduce((s, r) => s + r.rating, 0) / all.length;
+    db.run(
+      'UPDATE trails SET rating = ?, review_count = ? WHERE id = ?',
+      [
+        Math.round(avg * 10) / 10,
+        all.length,
+        review.trail_id
+      ]
+    );
+    
+    res.json({
+      success: true,
+      message: 'Отзыв обновлен'
+    
+    });
+  });
+
+  /**
+ * @swagger
+ * /api/trails/reviews/{id}:
+ *   delete:
+ *     summary: Удалить отзыв
+ *     tags:
+ *       - Reviews
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: ID отзыва
+ *     responses:
+ *       200:
+ *         description: Отзыв успешно удален
+ *       401:
+ *         description: Требуется авторизация
+ *       404:
+ *         description: Отзыв не найден
+ */
+  router.delete('/reviews/:id', optionalAuth, (req, res) => {
+    if (!req.user) {
+      return res.status(401).json({ error: 'Необходимо войти в систему' });
+    }
+    
+    const review = db.get(
+      'SELECT * FROM reviews WHERE id = ?',
+      [req.params.id]
+    );
+    
+    if (!review) {
+      return res.status(404).json({ error: 'Отзыв не найден' });
+    }
+    
+    const isAdmin = req.user.role === 'admin';
+    
+    if (!isAdmin && review.user_id !== req.user.id) {
+      return res.status(403).json({ error: 'Недостаточно прав' });
+    }
+    
+    db.run(
+      'DELETE FROM reviews WHERE id = ?',
+      [req.params.id]
+    );
+    
+    const all = db.all(
+      'SELECT rating FROM reviews WHERE trail_id = ? AND is_hidden = 0',
+      [review.trail_id]
+    );
+    
+    const avg =
+    all.length > 0
+    ? all.reduce((s, r) => s + r.rating, 0) / all.length
+    : 0;
+    
+    db.run(
+      'UPDATE trails SET rating = ?, review_count = ? WHERE id = ?',
+      [
+        Math.round(avg * 10) / 10,
+        all.length,
+        review.trail_id
+      ]
+    );
+    
+    res.json({
+      success: true,
+      message: 'Отзыв удален'
+    });
+  });
+  
   return router;
 };
