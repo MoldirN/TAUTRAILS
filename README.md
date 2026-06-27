@@ -234,6 +234,7 @@ npm start
 
 **MoldirN** — [GitHub профиль](https://github.com/MoldirN)
 **talgatqyzyaisha** — [GitHub профиль](https://github.com/talgatqyzyaisha)
+**aitbalakausar** — [GitHub профиль](https://github.com/aitbalakausar)
 
 ---
 
