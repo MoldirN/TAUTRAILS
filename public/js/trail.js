@@ -32,6 +32,20 @@ burger?.addEventListener('click', () => {
 
 let currentUser = null;
 
+const modal = document.getElementById('reviewModal');
+const modalTitle = document.getElementById('modalTitle');
+const modalBody = document.getElementById('modalBody');
+const modalSave = document.getElementById('modalSave');
+const modalCancel = document.getElementById('modalCancel');
+
+function closeModal() {
+  modal.classList.remove('open');
+  modalSave.onclick = null;
+}
+
+modalCancel.onclick = closeModal;
+modal.querySelector('.modal__overlay').onclick = closeModal;
+
 async function initNavAuth() {
   try {
     const res = await fetch('/api/auth/me');
@@ -192,22 +206,50 @@ function renderReviews(reviews) {
     el.innerHTML = '<p style="color:#556655;font-size:14px;padding:16px 0;">Отзывов пока нет. Будьте первым!</p>';
     return;
   }
-  el.innerHTML = reviews.map(r => `
+el.innerHTML = reviews.map(r => {
+  const canEdit =
+    currentUser &&
+    (currentUser.role === 'admin' || currentUser.id === r.user_id);
+
+  return `
     <div class="reviews-list__item">
       <div class="reviews-list__header">
         <div style="display:flex;align-items:center;gap:10px;">
           <div class="reviews-list__avatar">${r.author_name.charAt(0).toUpperCase()}</div>
+
           <div>
             <span class="reviews-list__author">${r.author_name}</span>
             <div class="reviews-list__date">${formatDate(r.created_at)}</div>
           </div>
         </div>
+
         ${r.sticker ? `<span class="review-sticker-display">${r.sticker}</span>` : ''}
       </div>
+
       <div class="reviews-list__stars">${starsHtml(r.rating)}</div>
+
       ${r.comment ? `<p class="reviews-list__text">${r.comment}</p>` : ''}
+
+      ${
+        canEdit
+          ? `
+          <div style="display:flex;gap:10px;margin-top:12px;">
+            <button class="btn btn--secondary"
+              onclick="editReview(${r.id}, '${r.author_name.replace(/'/g, "\\'")}', ${r.rating}, '${(r.comment || '').replace(/'/g, "\\'")}', '${r.sticker || ''}')">
+              ✏️ Редактировать
+            </button>
+
+            <button class="btn btn--danger"
+              onclick="deleteReview(${r.id})">
+              🗑️ Удалить
+            </button>
+          </div>
+          `
+          : ''
+      }
     </div>
-  `).join('');
+  `;
+}).join('');
 }
 
 // ===== СТИКЕРЫ =====
@@ -283,6 +325,89 @@ document.getElementById('submitReview')?.addEventListener('click', async () => {
   }
   btn.disabled = false; btn.textContent = 'Отправить отзыв';
 });
+
+// ===== РЕДАКТИРОВАНИЕ ОТЗЫВА =====
+async function editReview(id, author, rating, comment, sticker) {
+
+  modalTitle.textContent = 'Редактировать отзыв';
+
+  modalBody.innerHTML = `
+    <input id="editAuthor" value="${author}">
+
+    <input id="editRating"
+           type="number"
+           min="1"
+           max="5"
+           value="${rating}">
+
+    <input id="editSticker"
+           value="${sticker || ''}"
+           placeholder="Стикер">
+
+    <textarea id="editComment">${comment || ''}</textarea>
+  `;
+
+  modal.classList.add('open');
+
+  modalSave.onclick = async () => {
+
+    const res = await fetch(`/api/trails/reviews/${id}`, {
+      method: 'PUT',
+      credentials: 'include',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        author_name: document.getElementById('editAuthor').value,
+        rating: Number(document.getElementById('editRating').value),
+        sticker: document.getElementById('editSticker').value,
+        comment: document.getElementById('editComment').value
+      })
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      alert(data.error || 'Ошибка');
+      return;
+    }
+
+    closeModal();
+    loadTrail();
+  };
+}
+
+// ===== УДАЛЕНИЕ ОТЗЫВА =====
+async function deleteReview(id) {
+
+  modalTitle.textContent = 'Удаление отзыва';
+
+  modalBody.innerHTML = `
+    <p style="line-height:1.6;">
+      Вы действительно хотите удалить этот отзыв?
+    </p>
+  `;
+
+  modal.classList.add('open');
+
+  modalSave.onclick = async () => {
+
+    const res = await fetch(`/api/trails/reviews/${id}`, {
+      method: 'DELETE',
+      credentials: 'include'
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      alert(data.error || 'Ошибка');
+      return;
+    }
+
+    closeModal();
+    loadTrail();
+  };
+}
 
 initNavAuth();
 loadTrail();
