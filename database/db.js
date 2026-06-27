@@ -16,6 +16,10 @@ async function initDB() {
     db = new SQL.Database();
   }
 
+  db.run(`
+    PRAGMA foreign_keys = ON;
+  `);
+
   function save() {
     const data = db.export();
     fs.writeFileSync(DB_PATH, Buffer.from(data));
@@ -25,7 +29,7 @@ async function initDB() {
     CREATE TABLE IF NOT EXISTS users (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       username TEXT UNIQUE NOT NULL,
-      email TEXT UNIQUE,
+      email TEXT UNIQUE NOT NULL,
       password TEXT NOT NULL,
       role TEXT DEFAULT 'user',
       avatar TEXT,
@@ -55,22 +59,35 @@ async function initDB() {
     );
     CREATE TABLE IF NOT EXISTS trail_images (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
-      trail_id INTEGER,
-      image_path TEXT
+      trail_id INTEGER NOT NULL,
+      image_path TEXT,
+
+      FOREIGN KEY (trail_id)
+        REFERENCES trails(id)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE
     );
     CREATE TABLE IF NOT EXISTS reviews (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    trail_id INTEGER,
-    user_id INTEGER,
+    trail_id INTEGER NOT NULL,
+    user_id INTEGER NOT NULL,
     author_name TEXT NOT NULL,
-    rating INTEGER,
+    rating INTEGER NOT NULL,
     comment TEXT,
     sticker TEXT,
     is_hidden INTEGER DEFAULT 0,
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-    );
-  `);
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
 
+    FOREIGN KEY (trail_id)
+        REFERENCES trails(id)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE,
+    FOREIGN KEY (user_id)
+        REFERENCES users(id)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE
+    );
+    `);
   function run(sql, params = []) {
     db.run(sql, params);
     save();
