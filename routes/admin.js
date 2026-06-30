@@ -384,7 +384,7 @@ module.exports = function(db) {
  * @swagger
  * /api/admin/users:
  *   get:
- *     summary: Получить список пользователей
+ *     summary: Получить список пользователей (админ)
  *     tags:
  *       - Admin Users
  *     security:
@@ -511,7 +511,7 @@ module.exports = function(db) {
  * @swagger
  * /api/admin/reviews:
  *   get:
- *     summary: Получить все отзывы
+ *     summary: Получить все отзывы (админ)
  *     tags:
  *       - Admin Reviews
  *     security:

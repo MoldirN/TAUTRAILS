@@ -1,6 +1,9 @@
 # Dependencies
 node_modules/
 
+# Database
+database/tautrails.db
+
 # Environment
 .env
 .env.local
