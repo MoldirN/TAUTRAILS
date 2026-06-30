@@ -40,12 +40,12 @@ initDB().then(db => {
   app.get('/register', (req, res) => res.sendFile(path.join(__dirname, 'public/register.html')));
   app.get('/profile', (req, res) => res.sendFile(path.join(__dirname, 'public/profile.html')));
 
-  /* Для проверки ошибки 500:
+/* Для проверки ошибки 500:
   app.get('/test500', (req, res) => {
-  console.log('TEST500');
-  throw new Error('Тестовая ошибка');
-});
-  */
+    console.log('TEST500');
+    throw new Error('Тестовая ошибка');
+    });
+*/
  
   app.use(notFound);
   app.use(globalErrorHandler);
